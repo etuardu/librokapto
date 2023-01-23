@@ -1,5 +1,7 @@
 <template>
-  <div ref="quagga_el">
+  <div>
+    <div ref="quagga_el">
+    </div>
   </div>
 </template>
 <script>
@@ -12,6 +14,9 @@ export default {
     // the same, emit the code.
     attempts_i: 0,
   }),
+  beforeUnmount() {
+    Quagga.stop()
+  },
   mounted() {
     Quagga.init({
       inputStream : {

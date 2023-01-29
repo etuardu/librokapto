@@ -3,6 +3,12 @@
     <div>{{ isbn }}</div>
     <quagga-scanner @onscan="onscan" ref="quagga" v-if="quagga_visible"></quagga-scanner>
     <button @click="toggle_quagga">{{ quagga_visible ? 'Chiudi lettore ISBN' : 'Leggi ISBN' }}</button>
+    <v-app>
+      <v-btn stacked prepend-icon="mdi-vuetify">
+        Button
+      </v-btn>
+      <v-icon color="secondary" icon="mdi-home" /> home
+    </v-app>
   </main>
 </template>
 <script>

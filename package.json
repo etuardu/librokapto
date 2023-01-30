@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "transfer": "rsync -avz --delete --progress dist/ etuardu@mnemofon.it:/var/www/html/ubicalibri/",

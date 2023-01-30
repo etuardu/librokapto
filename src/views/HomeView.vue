@@ -1,9 +1,28 @@
 <template>
   <v-container>
-  <!--
-    <div>{{ isbn }}</div>
-    <quagga-scanner @onscan="onscan" ref="quagga" v-if="quagga_visible"></quagga-scanner>
-  -->
+
+    <v-dialog
+      v-model="quagga_visible"
+      fullscreen
+      :scrim="false"
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar
+          dark
+          color="primary"
+        >
+          <v-btn
+            icon
+            dark
+            @click="quagga_visible=false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <quagga-scanner @onscan="onscan" ref="quagga" v-if="quagga_visible"></quagga-scanner>
+      </v-card>
+    </v-dialog>
 
     <v-text-field
       label="ISBN"
@@ -60,11 +79,21 @@
         <v-icon class="me-2">mdi-close</v-icon> Clear all fields
       </v-btn>
     </v-row>
+
+    <v-img
+      v-if="is_bookinfo_filled"
+      height="110"
+      width="80"
+      :src="bookinfo.image || '/no_cover.png'"
+      contain
+    >
+    </v-img>
     
   </v-container>
   <v-footer app bottom fixed class="pa-1" elevation="3">
     <v-container fluid class="pa-0">
       <v-row align="center" justify="center">
+      <!--
         <v-col d-flex class="flex-shrink-1 flex-grow-0">
           <v-img
             v-if="is_bookinfo_filled"
@@ -75,6 +104,7 @@
           >
           </v-img>
         </v-col>
+        -->
         <v-col d-flex class="flex-shrink-0 flex-grow-1">
           <v-text-field
             density="compact"
@@ -165,8 +195,9 @@ export default {
   },
   methods: {
     onscan(code) {
-      console.log('scanned:', code)
-      this.isbn = code
+      this.bookinfo.isbn = code
+      this.quagga_visible = false
+      this.fetch_book_info()
     },
     toggle_quagga() {
       this.quagga_visible = !this.quagga_visible

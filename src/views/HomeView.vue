@@ -90,8 +90,8 @@
     </v-img>
     
   </v-container>
-  <v-footer app bottom fixed class="pa-1" elevation="3">
-    <v-container fluid class="pa-0">
+  <v-footer app bottom fixed class="pa-1" color="grey-lighten-3">
+    <v-container fluid class="pa-1">
       <v-row align="center" justify="center">
       <!--
         <v-col d-flex class="flex-shrink-1 flex-grow-0">
@@ -108,27 +108,33 @@
         <v-col d-flex class="flex-shrink-0 flex-grow-1">
           <v-text-field
             density="compact"
-            label="Bookcase"
-            v-model="bookcase"
-            hide-details
-          ></v-text-field>
-          <v-text-field
-            density="compact"
             label="Shelf"
             v-model="shelf"
+            type="number"
+            bg-color="white"
             hide-details
+            class="mb-2"
           >
-            <template v-slot:append-inner>
+            <template v-slot:append>
               <v-icon
                 icon="mdi-plus"
+                @click="shelf+=1"
               />
             </template>
-            <template v-slot:prepend-inner>
+            <template v-slot:prepend>
               <v-icon
                 icon="mdi-minus"
+                @click="shelf-=1"
               />
             </template>
           </v-text-field>
+          <v-text-field
+            density="compact"
+            label="Bookcase"
+            v-model="bookcase"
+            bg-color="white"
+            hide-details
+          ></v-text-field>
         </v-col>
         <v-col d-flex class="flex-shrink-1 flex-grow-0">
           <v-scale-transition mode="out-in" origin="center center">
@@ -136,7 +142,7 @@
               v-if="is_bookinfo_filled"
               :loading="loading_book_saving"
               color="blue-darken-3"
-              style="width: 150px"
+              style="width: 130px"
               size="x-large"
               rounded="pill"
               stacked
@@ -148,7 +154,7 @@
             <v-btn
               v-else
               color="amber-lighten-2"
-              style="width: 150px"
+              style="width: 130px"
               size="x-large"
               rounded="pill"
               stacked

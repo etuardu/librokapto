@@ -66,7 +66,17 @@
     >
     </v-text-field>
 
-    <v-row class="mt-2">
+    <div class="d-flex justify-space-between mb-6 mt-2">
+      <div>
+        <v-img
+          v-if="is_bookinfo_filled"
+          height="110"
+          width="80"
+          :src="bookinfo.image || '/no_cover.png'"
+          contain
+        >
+        </v-img>
+      </div>
       <v-spacer></v-spacer>
       <v-btn
         text
@@ -78,94 +88,81 @@
       >
         <v-icon class="me-2">mdi-close</v-icon> Clear all fields
       </v-btn>
-    </v-row>
+    </div>
 
-    <v-img
-      v-if="is_bookinfo_filled"
-      height="110"
-      width="80"
-      :src="bookinfo.image || '/no_cover.png'"
-      contain
-    >
-    </v-img>
     
   </v-container>
   <v-footer app bottom fixed class="pa-1" color="grey-lighten-3">
     <v-container fluid class="pa-1">
-      <v-row align="center" justify="center">
-      <!--
-        <v-col d-flex class="flex-shrink-1 flex-grow-0">
-          <v-img
-            v-if="is_bookinfo_filled"
-            height="110"
-            width="80"
-            :src="bookinfo.image || '/no_cover.png'"
-            contain
-          >
-          </v-img>
-        </v-col>
-        -->
-        <v-col d-flex class="flex-shrink-0 flex-grow-1">
-          <v-text-field
-            density="compact"
-            label="Shelf"
-            v-model="shelf"
-            type="number"
-            bg-color="white"
-            hide-details
-            class="mb-2"
-          >
-            <template v-slot:append>
-              <v-icon
-                icon="mdi-plus"
-                @click="shelf+=1"
-              />
-            </template>
-            <template v-slot:prepend>
-              <v-icon
-                icon="mdi-minus"
-                @click="shelf-=1"
-              />
-            </template>
-          </v-text-field>
-          <v-text-field
-            density="compact"
-            label="Bookcase"
-            v-model="bookcase"
-            bg-color="white"
-            hide-details
-          ></v-text-field>
-        </v-col>
-        <v-col d-flex class="flex-shrink-1 flex-grow-0">
-          <v-scale-transition mode="out-in" origin="center center">
-            <v-btn
-              v-if="is_bookinfo_filled"
-              :loading="loading_book_saving"
-              color="blue-darken-3"
-              style="width: 130px"
-              size="x-large"
-              rounded="pill"
-              stacked
-              prepend-icon="mdi-content-save"
-              @click="save_book"
+      <v-form
+        @submit.prevent="save_book"
+      >
+        <v-row align="center" justify="center">
+          <v-col d-flex class="flex-shrink-0 flex-grow-1">
+            <v-text-field
+              density="compact"
+              label="Shelf"
+              v-model="shelf"
+              type="number"
+              bg-color="white"
+              hide-details
+              class="mb-2"
+              :rules="[ v => !!`${v}` || 'Please specify a shelf number.', v => !!`${v}`.match(/^[0-9]+$/) || 'The shelf field must contain digits only (0-9).' ]"
             >
-              Save
-            </v-btn>
-            <v-btn
-              v-else
-              color="amber-lighten-2"
-              style="width: 130px"
-              size="x-large"
-              rounded="pill"
-              stacked
-              prepend-icon="mdi-barcode-scan"
-              @click="quagga_visible=true"
-            >
-              Scan ISBN
-            </v-btn>
-          </v-scale-transition>
-        </v-col>
-      </v-row>
+              <template v-slot:append>
+                <v-icon
+                  icon="mdi-plus"
+                  @click="shelf=shelf*1+1"
+                />
+              </template>
+              <template v-slot:prepend>
+                <v-icon
+                  icon="mdi-minus"
+                  @click="shelf=shelf > 0 ? shelf*1-1 : shelf"
+                />
+              </template>
+            </v-text-field>
+            <v-combobox
+              density="compact"
+              label="Bookcase"
+              v-model="bookcase"
+              bg-color="white"
+              hide-details
+              clearable
+              :rules="[ v => !!v || 'Please specify a bookcase.' ]"
+            ></v-combobox>
+          </v-col>
+          <v-col d-flex class="flex-shrink-1 flex-grow-0">
+            <v-scale-transition mode="out-in" origin="center center">
+              <v-btn
+                v-if="is_bookinfo_filled"
+                :loading="loading_book_saving"
+                color="blue-darken-3"
+                style="width: 130px"
+                size="x-large"
+                rounded="pill"
+                stacked
+                prepend-icon="mdi-content-save"
+                type="submit"
+              >
+                Save
+              </v-btn>
+              <v-btn
+                v-else
+                color="amber-lighten-2"
+                style="width: 130px"
+                size="x-large"
+                rounded="pill"
+                stacked
+                prepend-icon="mdi-barcode-scan"
+                @click="quagga_visible=true"
+              >
+                Scan ISBN
+              </v-btn>
+            </v-scale-transition>
+          </v-col>
+        </v-row>
+      </v-form>
     </v-container>
   </v-footer>
 
@@ -208,7 +205,12 @@ export default {
     toggle_quagga() {
       this.quagga_visible = !this.quagga_visible
     },
-    async save_book() {
+    async save_book(e) {
+      const ret = await e
+      if (!ret.valid) {
+        console.log(ret.errors.map(e => Object.values(e.errorMessages)).join(" "))
+        return
+      }
       this.loading_book_saving = true
       const resp = await this.post_to_gsheet({
         op: 'addBook',

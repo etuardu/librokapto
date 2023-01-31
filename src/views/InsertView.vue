@@ -165,18 +165,20 @@
       </v-form>
     </v-container>
   </v-footer>
-
-
 </template>
 <script>
+import { get } from 'idb-keyval'
 import TheWelcome from '../components/TheWelcome.vue'
 import QuaggaScanner from '../components/QuaggaScanner.vue'
 export default {
   components: {
     'quagga-scanner': QuaggaScanner
   },
+  async created() {
+    this.gsheet_app_url = await get('u_gsheet_app_url')
+  },
   data: () => ({
-    gsheet_app_url: 'https://script.google.com/macros/s/AKfycbzMVK1k3p2t4iqK-tbxcTsHpk3uY0pwtjVAZDrqO5ubra9fE8HaOqcSaG03OqTTTjuz/exec',
+    gsheet_app_url: '',
     quagga_visible: false,
     bookinfo: {
       image: '',
@@ -220,7 +222,7 @@ export default {
           publisher: this.bookinfo.publisher,
           image: this.bookinfo.image,
           isbn: this.bookinfo.isbn,
-          place: this.bookcase,
+          bookcase: this.bookcase,
           shelf: this.shelf,
         }
       })
@@ -230,6 +232,7 @@ export default {
       this.clear_bookinfo()
     },
     async post_to_gsheet(data) {
+      console.log('posting:', data)
       const response = await fetch(this.gsheet_app_url, {
         method: 'POST',
         headers: {
@@ -279,4 +282,3 @@ export default {
   }
 }
 </script>
-

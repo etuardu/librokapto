@@ -170,6 +170,8 @@
 import { get } from 'idb-keyval'
 import TheWelcome from '../components/TheWelcome.vue'
 import QuaggaScanner from '../components/QuaggaScanner.vue'
+import { mapActions } from 'pinia'
+import { useLibraryStore } from '../stores/library'
 export default {
   components: {
     'quagga-scanner': QuaggaScanner
@@ -199,6 +201,9 @@ export default {
     },
   },
   methods: {
+    ...mapActions(useLibraryStore, [
+     'appendToLibrary',
+    ]),
     onscan(code) {
       this.bookinfo.isbn = code
       this.quagga_visible = false
@@ -214,22 +219,26 @@ export default {
         return
       }
       this.loading_book_saving = true
+
+      const bookinfo = {
+        title: this.bookinfo.title,
+        author: this.bookinfo.author,
+        publisher: this.bookinfo.publisher,
+        image: this.bookinfo.image,
+        isbn: this.bookinfo.isbn,
+        bookcase: this.bookcase,
+        shelf: this.shelf,
+      }
+
       const resp = await this.post_to_gsheet({
         op: 'addBook',
-        bookinfo: {
-          title: this.bookinfo.title,
-          author: this.bookinfo.author,
-          publisher: this.bookinfo.publisher,
-          image: this.bookinfo.image,
-          isbn: this.bookinfo.isbn,
-          bookcase: this.bookcase,
-          shelf: this.shelf,
-        }
+        bookinfo
       })
       this.loading_book_saving = false
       // TODO: snackbar "Saved!"
       // TODO: error handling
       this.clear_bookinfo()
+      this.appendToLibrary({ date: new Date(), ...bookinfo })
     },
     async post_to_gsheet(data) {
       console.log('posting:', data)

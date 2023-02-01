@@ -89,10 +89,13 @@ export default {
     filtered_library() {
       if (!this.library) return []
       return this.library.filter(book => {
+        if (!this.search_string) return true
         const s = this.search_string.toLowerCase()
         for (const k of ['title', 'author', 'publisher']) {
           if (book[k]?.toLowerCase().includes(s)) return true
         }
+      }).sort((a, b) => {
+        return b.date - a.date
       })
     }
   },

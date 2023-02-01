@@ -1,5 +1,21 @@
 <template>
   <v-container>
+    <v-snackbar
+      color="error"
+      v-model="snackbar_visible"
+      multi-line
+      style="white-space: pre-line;"
+    >
+      {{ snackbar_text }}
+      <template v-slot:actions>
+        <v-btn
+          variant="icon"
+          @click="snackbar_visible = false"
+          icon="mdi-close"
+        >
+        </v-btn>
+      </template>
+    </v-snackbar>
 
     <v-dialog
       v-model="quagga_visible"
@@ -126,6 +142,7 @@
               density="compact"
               label="Bookcase"
               v-model="bookcase"
+              :items="bookcase_items"
               bg-color="white"
               hide-details
               clearable
@@ -167,7 +184,7 @@
   </v-footer>
 </template>
 <script>
-import { get } from 'idb-keyval'
+import { get, getMany, setMany } from 'idb-keyval'
 import TheWelcome from '../components/TheWelcome.vue'
 import QuaggaScanner from '../components/QuaggaScanner.vue'
 import { mapActions } from 'pinia'
@@ -178,8 +195,14 @@ export default {
   },
   async created() {
     this.gsheet_app_url = await get('u_gsheet_app_url')
+    this.bookcase = await get('u_last_bookcase') || ''
+    this.shelf = await get('u_last_shelf') || 1
+    this.library = await this.getLibrary()
   },
   data: () => ({
+    snackbar_visible: false,
+    snackbar_text: '',
+    library: undefined,
     gsheet_app_url: '',
     quagga_visible: false,
     bookinfo: {
@@ -189,7 +212,7 @@ export default {
       author: '',
       publisher: '',
     },
-    bookcase: 'Test bookcase',
+    bookcase: '',
     shelf: 1,
     loading_book_info: false,
     loading_book_saving: false,
@@ -199,10 +222,19 @@ export default {
       // true if at least the title is filled
       return this.bookinfo.title
     },
+    bookcase_items() {
+      if (!this.library) return []
+      return [...new Set(
+        this.library.map(
+          book => book.bookcase
+        )
+      )]
+    }
   },
   methods: {
     ...mapActions(useLibraryStore, [
-     'appendToLibrary',
+      'appendToLibrary',
+      'getLibrary'
     ]),
     onscan(code) {
       this.bookinfo.isbn = code
@@ -215,7 +247,10 @@ export default {
     async save_book(e) {
       const ret = await e
       if (!ret.valid) {
-        console.log(ret.errors.map(e => Object.values(e.errorMessages)).join(" "))
+        this.snackbar_text = ret.errors.map(
+          e => Object.values(e.errorMessages)
+        ).join("\n")
+        this.snackbar_visible = true
         return
       }
       this.loading_book_saving = true
@@ -234,11 +269,22 @@ export default {
         op: 'addBook',
         bookinfo
       })
-      this.loading_book_saving = false
-      // TODO: snackbar "Saved!"
-      // TODO: error handling
-      this.clear_bookinfo()
       this.appendToLibrary({ date: new Date(), ...bookinfo })
+
+      this.library = await this.getLibrary()
+      // we update the library so that bookcase_items
+      // which populates the items of the combobox for
+      // bookcase selection will be updated
+
+      await setMany([
+        ['u_last_bookcase', this.bookcase],
+        ['u_last_shelf', this.shelf]
+      ])
+
+      this.clear_bookinfo()
+
+      this.loading_book_saving = false
+      // TODO: error handling
     },
     async post_to_gsheet(data) {
       console.log('posting:', data)

@@ -1,66 +1,75 @@
 <template>
   <v-container>
-    Home page
-    <v-btn @click="reloadLibrary" :loading="reloading">reload</v-btn>
 
-    <v-sheet
-      rounded
-      border
-      class="mt-2"
+    <v-text-field
+      variant="outlined"
+      v-model="search_string"
+      prepend-inner-icon="mdi-magnify"
+      placeholder="Search a book…"
+      clearable
+      hide-details
     >
-      <v-progress-linear
-        indeterminate
-        v-if="initializing"
-      ></v-progress-linear>
-      <v-table>
-        <thead>
-          <tr>
-            <th>Book</th>
-            <th>Bookcase</th>
-            <th>Shelf</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-if="initializing">
-            <tr v-for="i in Array(6)">
-              <td v-for="j in Array(3)">
-                <v-divider thickness="15" style="border-radius:10px; opacity: 0.07;"></v-divider></td>
-            </tr>
+      <template v-slot:append>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="icon"
+              icon="mdi-dots-vertical"
+              :loading="reloading"
+            >
+            </v-btn>
           </template>
-          <tr
-            v-for="book in library"
-            :key="book.title"
-          >
-            <td>
-              <div class="d-flex align-center">
-                <div class="mr-2 my-1">
-                  <v-img :src="book.image || '/no_cover.png'" width="40" class="ma-1"></v-img>
-                </div>
-                <div>
-                  <div>{{ book.title }}</div>
-                  <div class="text-caption">{{ [book.author, book.publisher].filter(v=>v).join(' • ') }}</div>
-                </div>
-              </div>
-            </td>
-            <td><v-chip :color="string2color(book.bookcase)">{{ book.bookcase }}</v-chip></td>
-            <td>{{ book.shelf }}</td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-sheet>
+          <v-list>
+            <v-list-item
+              title="Open in Google Sheets"
+              prependIcon="mdi-google-spreadsheet"
+              appendIcon="mdi-open-in-new"
+              :href="gsheet_doc_url"
+              target="_blank"
+            >
+            </v-list-item>
+            <v-list-item
+              title="Refresh"
+              prependIcon="mdi-sync"
+              @click="reloadLibrary"
+            >
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+    </v-text-field>
+
+    <div class="my-4 text-caption">
+      {{ filtered_library.length }} results
+    </div>
+
+    <books-table
+      :library="filtered_library"
+      :loading="initializing"
+    >
+    </books-table>
+
   </v-container>
 </template>
 <script>
 import { get } from 'idb-keyval'
 import { mapActions } from 'pinia'
 import { useLibraryStore } from '../stores/library'
+import BooksTable from '@/components/BooksTable.vue'
 export default {
+  components: {
+    'books-table': BooksTable,
+  },
   data: () => ({
     library: undefined,
     reloading: false,
     initializing: true,
+    search_string: '',
+    gsheet_doc_url: undefined,
   }),
   async created() {
+    this.gsheet_doc_url = await get('u_gsheet_doc_url')
     this.library = await this.getLibrary()
     this.initializing = false
     console.log(this.library)
@@ -75,12 +84,17 @@ export default {
       this.library = await this.fetchLibrary()
       this.reloading = false
     },
-    string2color(txt) {
-      let hash = [...txt].reduce((acc, c) => {
-        return c.charCodeAt(0) + ((acc << 5) - acc);
-      }, 0);
-      return `hsl(${hash % 360}, 95%, 35%)`;
-    },
-  }
+  },
+  computed: {
+    filtered_library() {
+      if (!this.library) return []
+      return this.library.filter(book => {
+        const s = this.search_string.toLowerCase()
+        for (const k of ['title', 'author', 'publisher']) {
+          if (book[k]?.toLowerCase().includes(s)) return true
+        }
+      })
+    }
+  },
 }
 </script>

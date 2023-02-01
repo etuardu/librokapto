@@ -31,7 +31,7 @@ export default {
     </v-navigation-drawer>
     <v-app-bar>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>ubicalibri</v-toolbar-title>
+      <v-toolbar-title>librokapto</v-toolbar-title>
     </v-app-bar>
     <v-main>
       <v-container fluid>

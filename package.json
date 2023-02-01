@@ -6,7 +6,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "transfer": "rsync -avz --delete --progress dist/ etuardu@mnemofon.it:/var/www/html/ubicalibri/",
+    "transfer": "firebase deploy --only hosting",
     "deploy": "npm run build && npm run transfer"
   },
   "dependencies": {

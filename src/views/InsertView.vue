@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-snackbar
+      location="top"
       color="error"
       v-model="snackbar_visible"
       multi-line

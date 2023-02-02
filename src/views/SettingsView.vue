@@ -19,19 +19,20 @@
       label="Language"
     ></v-select>
 
-    <v-btn
-      @click="save"
-    >Save settings</v-btn>
-
-    <v-btn
-      text
-      flat
-      size="small"
-      class="ml-6 text-medium-emphasis"
-      @click="copySettingsUrl"
-    >
-      <v-icon class="me-1">mdi-link</v-icon> Share configuration
-    </v-btn>
+    <div class="d-flex flex-column flex-sm-row align-sm-center">
+      <v-btn
+        @click="save"
+      >Save settings</v-btn>
+      <v-btn
+        text
+        variant="text"
+        size="small"
+        class="ml-lg-6 mt-6 mt-sm-0 text-medium-emphasis"
+        @click="copySettingsUrl"
+      >
+        <v-icon class="me-1">mdi-link</v-icon> Share configuration
+      </v-btn>
+    </div>
 
     <v-alert
       class="mt-5"

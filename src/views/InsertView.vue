@@ -41,156 +41,203 @@
       </v-card>
     </v-dialog>
 
-    <v-text-field
-      label="ISBN"
-      prepend-inner-icon="mdi-barcode"
-      :loading="loading_book_info"
-      v-model="bookinfo.isbn"
-      density="comfortable"
-    >
-      <template v-slot:append-inner>
-        <v-icon
-          icon="mdi-sync"
-          @click="fetch_book_info"
-        />
-      </template>
-    </v-text-field>
 
-    <v-text-field
-      label="Title"
-      prepend-inner-icon="mdi-format-title"
-      v-model="bookinfo.title"
-      density="comfortable"
-      clearable
-    >
-    </v-text-field>
-
-    <v-text-field
-      label="Author"
-      prepend-inner-icon="mdi-account-tie"
-      v-model="bookinfo.author"
-      density="comfortable"
-      clearable
-    >
-    </v-text-field>
-
-    <v-text-field
-      label="Publisher"
-      prepend-inner-icon="mdi-factory"
-      v-model="bookinfo.publisher"
-      density="comfortable"
-      clearable
-    >
-    </v-text-field>
-
-    <div class="d-flex justify-space-between mb-6 mt-2">
-      <div>
-        <v-img
-          v-if="is_bookinfo_filled"
-          height="110"
-          width="80"
-          :src="bookinfo.image || '/no_cover.png'"
-          contain
-        >
-        </v-img>
+    <v-form @submit.prevent="save_book">
+      <v-row class="mb-2">
+        <v-col cols="9">
+          <v-combobox
+            label="Bookcase"
+            variant="outlined"
+            density="comfortable"
+            v-model="bookcase"
+            :items="bookcase_items"
+            clearable
+            :rules="[ v => !!v || 'Please specify a bookcase.' ]"
+            hide-details
+            hide-no-data
+          >
+            <template v-slot:selection="data">
+              <v-chip
+                :key="data.item.title"
+                v-bind="data.attrs"
+                :model-value="data.selected"
+                :disabled="data.disabled"
+                size="small"
+                @click:close="data.parent.selectItem(data.item)"
+                :color="string2color(data.item.title)"
+              >{{data.item.title}}</v-chip>
+            </template>
+            <template v-slot:item="{ index, item, props }">
+              <v-list-item v-bind="props" title="">
+                <v-chip
+                  v-bind="props"
+                  size="small"
+                  :color="string2color(item.title)"
+                >{{item.title}}</v-chip>
+              </v-list-item>
+            </template>
+          </v-combobox>
+        </v-col>
+        <v-col cols="3">
+          <v-text-field
+            label="Shelf"
+            variant="outlined"
+            density="comfortable"
+            v-model="shelf"
+            type="number"
+            bg-color="white"
+            :rules="[ v => !!`${v}` || 'Please specify a shelf number.', v => !!`${v}`.match(/^[0-9]+$/) || 'The shelf field must contain digits only (0-9).' ]"
+            hide-details
+          >
+            <template v-slot:append>
+              <v-icon
+                size="x-small"
+                icon="mdi-plus"
+                @click="shelf=shelf*1+1"
+              />
+            </template>
+            <template v-slot:prepend>
+              <v-icon
+                size="x-small"
+                icon="mdi-minus"
+                @click="shelf=shelf > 0 ? shelf*1-1 : shelf"
+              />
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <div style="position: fixed; right: 20px; bottom: 20px; z-index: 99;">
+        <v-scale-transition mode="out-in" origin="center center">
+          <v-btn
+            v-if="is_bookinfo_filled"
+            :loading="loading_book_saving"
+            color="blue-darken-3"
+            size="x-large"
+            rounded="pill"
+            stacked
+            prepend-icon="mdi-content-save"
+            type="submit"
+          >
+            Save
+          </v-btn>
+          <v-btn
+            v-else
+            color="amber-lighten-2"
+            size="x-large"
+            rounded="pill"
+            stacked
+            prepend-icon="mdi-barcode-scan"
+            @click="quagga_visible=true"
+          >
+            Scan ISBN
+          </v-btn>
+        </v-scale-transition>
       </div>
-      <v-spacer></v-spacer>
-      <v-btn
-        text
-        flat
-        size="small"
-        class="text-medium-emphasis"
-        @click="clear_bookinfo"
-        right
-      >
-        <v-icon class="me-2">mdi-close</v-icon> Clear all fields
-      </v-btn>
-    </div>
+    </v-form>
 
+    <v-sheet class="px-3 pt-4 pb-3" elevation="1" rounded border>
+      <v-text-field
+        label="ISBN"
+        prepend-inner-icon="mdi-barcode"
+        :loading="loading_book_info"
+        v-model="bookinfo.isbn"
+        density="comfortable"
+        hide-details
+        variant="outlined"
+        class="mb-3"
+      >
+        <template v-slot:append-inner>
+          <v-icon
+            icon="mdi-sync"
+            @click="fetch_book_info"
+          />
+        </template>
+      </v-text-field>
+
+      <v-text-field
+        label="Title"
+        prepend-inner-icon="mdi-format-title"
+        v-model="bookinfo.title"
+        density="comfortable"
+        clearable
+        hide-details
+        variant="outlined"
+        class="mb-3"
+      >
+      </v-text-field>
+
+      <v-text-field
+        label="Author"
+        prepend-inner-icon="mdi-account-tie"
+        v-model="bookinfo.author"
+        density="comfortable"
+        clearable
+        hide-details
+        variant="outlined"
+        class="mb-3"
+      >
+      </v-text-field>
+
+      <v-text-field
+        label="Publisher"
+        prepend-inner-icon="mdi-factory"
+        v-model="bookinfo.publisher"
+        density="comfortable"
+        clearable
+        variant="outlined"
+        hide-details
+        class="mb-3"
+      >
+      </v-text-field>
+
+      <div class="d-flex justify-center">
+
+        <div
+          class="text-caption text-error"
+          v-show="show_isbn_not_found"
+        >
+          <v-icon>mdi-alert-circle-outline</v-icon> ISBN not found
+        </div>
+
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text
+          flat
+          size="small"
+          class="text-medium-emphasis"
+          @click="clear_bookinfo"
+          right
+        >
+          <v-icon class="me-2">mdi-close</v-icon> Clear all fields
+        </v-btn>
+
+      </div>
+
+    </v-sheet>
+
+    <v-img
+      v-show="is_bookinfo_filled"
+      class="mt-5"
+      width="150"
+      :src="bookinfo.image || '/no_cover.png'"
+      contain
+    >
+    </v-img>
     
   </v-container>
-  <v-footer app bottom fixed class="pa-1" color="grey-lighten-3">
-    <v-container fluid class="pa-1">
-      <v-form
-        @submit.prevent="save_book"
-      >
-        <v-row align="center" justify="center">
-          <v-col d-flex class="flex-shrink-0 flex-grow-1">
-            <v-text-field
-              density="compact"
-              label="Shelf"
-              v-model="shelf"
-              type="number"
-              bg-color="white"
-              hide-details
-              class="mb-2"
-              :rules="[ v => !!`${v}` || 'Please specify a shelf number.', v => !!`${v}`.match(/^[0-9]+$/) || 'The shelf field must contain digits only (0-9).' ]"
-            >
-              <template v-slot:append>
-                <v-icon
-                  icon="mdi-plus"
-                  @click="shelf=shelf*1+1"
-                />
-              </template>
-              <template v-slot:prepend>
-                <v-icon
-                  icon="mdi-minus"
-                  @click="shelf=shelf > 0 ? shelf*1-1 : shelf"
-                />
-              </template>
-            </v-text-field>
-            <v-combobox
-              density="compact"
-              label="Bookcase"
-              v-model="bookcase"
-              :items="bookcase_items"
-              bg-color="white"
-              hide-details
-              clearable
-              :rules="[ v => !!v || 'Please specify a bookcase.' ]"
-            ></v-combobox>
-          </v-col>
-          <v-col d-flex class="flex-shrink-1 flex-grow-0">
-            <v-scale-transition mode="out-in" origin="center center">
-              <v-btn
-                v-if="is_bookinfo_filled"
-                :loading="loading_book_saving"
-                color="blue-darken-3"
-                style="width: 130px"
-                size="x-large"
-                rounded="pill"
-                stacked
-                prepend-icon="mdi-content-save"
-                type="submit"
-              >
-                Save
-              </v-btn>
-              <v-btn
-                v-else
-                color="amber-lighten-2"
-                style="width: 130px"
-                size="x-large"
-                rounded="pill"
-                stacked
-                prepend-icon="mdi-barcode-scan"
-                @click="quagga_visible=true"
-              >
-                Scan ISBN
-              </v-btn>
-            </v-scale-transition>
-          </v-col>
-        </v-row>
-      </v-form>
-    </v-container>
-  </v-footer>
 </template>
 <script>
 import { get, getMany, setMany } from 'idb-keyval'
 import TheWelcome from '../components/TheWelcome.vue'
 import QuaggaScanner from '../components/QuaggaScanner.vue'
+import String2color from '@/mixins/string2color.js'
 import { mapActions } from 'pinia'
 import { useLibraryStore } from '../stores/library'
 export default {
+  mixins: [
+    String2color,
+  ],
   components: {
     'quagga-scanner': QuaggaScanner
   },
@@ -201,6 +248,7 @@ export default {
     this.library = await this.getLibrary()
   },
   data: () => ({
+    show_isbn_not_found: false,
     snackbar_visible: false,
     snackbar_text: '',
     library: undefined,
@@ -301,6 +349,9 @@ export default {
     },
     async fetch_book_info() {
 
+      if (!this.bookinfo.isbn) return
+
+      this.show_isbn_not_found = false
       this.loading_book_info = true
 
       let response, data
@@ -310,6 +361,7 @@ export default {
         data = await response.json();
       } catch(e) {
         console.log("Server unreachable") // TODO: snackbar
+        this.show_isbn_not_found = true
         return
       } finally {
         this.loading_book_info = false
@@ -317,6 +369,7 @@ export default {
 
       if (!data.items || data.items.length == 0) {
         console.log("No book was found") // TODO: snackbar
+        this.show_isbn_not_found = true
         return
       }
 

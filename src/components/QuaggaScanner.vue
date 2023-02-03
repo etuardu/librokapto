@@ -22,11 +22,24 @@ export default {
       inputStream : {
         name : "Live",
         type : "LiveStream",
-        target: this.$refs['quagga_el']
+        target: this.$refs['quagga_el'],
+        constraints: {
+          width: { min: 640 },
+          height: { min: 480 },
+          facingMode: "environment",
+          aspectRatio: { min: 1, max: 2 },
+        }
       },
       decoder : {
         readers : ["ean_reader"]
-      }
+      },
+      locate: true,
+      locator: {
+        patchSize: "medium",
+        halfSample: true,
+      },
+      numOfWorkers: 4,
+      frequency: 10,
     },
     function(err) {
       if (err) {

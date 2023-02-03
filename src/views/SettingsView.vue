@@ -6,17 +6,20 @@
       v-model="doc_url"
       placeholder="https://docs.google.com/spreadsheets/d/…/edit#gid=0"
       persistent-placeholder
+      variant="outlined"
     ></v-text-field>
 
     <v-text-field
-      label="Google sheets Ubicalibri app URL"
+      label="Google sheets Librokapto app URL"
       v-model="app_url"
       placeholder="https://script.google.com/macros/s/…/exec"
       persistent-placeholder
+      variant="outlined"
     ></v-text-field>
 
     <v-select
       label="Language"
+      variant="outlined"
     ></v-select>
 
     <div class="d-flex flex-column flex-sm-row align-sm-center">

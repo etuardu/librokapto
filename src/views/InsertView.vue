@@ -44,7 +44,7 @@
 
     <v-form @submit.prevent="save_book">
       <v-row class="mb-2">
-        <v-col cols="9">
+        <v-col cols="7">
           <v-combobox
             label="Bookcase"
             variant="outlined"
@@ -78,7 +78,7 @@
             </template>
           </v-combobox>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="5">
           <v-text-field
             label="Shelf"
             variant="outlined"
@@ -106,51 +106,79 @@
           </v-text-field>
         </v-col>
       </v-row>
-      <div style="position: fixed; right: 20px; bottom: 20px; z-index: 99;">
-        <v-scale-transition mode="out-in" origin="center center">
-          <v-btn
-            v-if="is_bookinfo_filled"
-            :loading="loading_book_saving"
-            color="blue-darken-3"
-            size="x-large"
-            rounded="pill"
-            stacked
-            prepend-icon="mdi-content-save"
-            type="submit"
-          >
-            Save
-          </v-btn>
-          <v-btn
-            v-else
-            color="amber-lighten-2"
-            size="x-large"
-            rounded="pill"
-            stacked
-            prepend-icon="mdi-barcode-scan"
-            @click="quagga_visible=true"
-          >
-            Scan ISBN
-          </v-btn>
-        </v-scale-transition>
-      </div>
+      <v-scale-transition mode="out-in" origin="center center">
+        <v-btn
+          position="fixed"
+          location="bottom right"
+          class="mb-4 mr-4"
+          style="z-index: 99;"
+          min-width="150"
+
+          v-if="is_bookinfo_filled"
+          :loading="loading_book_saving"
+          color="blue-darken-3"
+          :elevation="12"
+          size="x-large"
+          rounded="pill"
+          stacked
+          prepend-icon="mdi-content-save"
+          type="submit"
+        >
+          Save
+        </v-btn>
+        <v-btn
+          position="fixed"
+          location="bottom right"
+          class="mb-4 mr-4"
+          style="z-index: 99;"
+          min-width="150"
+
+          v-else
+          color="amber"
+          :elevation="12"
+          size="x-large"
+          rounded="pill"
+          stacked
+          prepend-icon="mdi-barcode-scan"
+          @click="quagga_visible=true"
+        >
+          Scan ISBN
+        </v-btn>
+      </v-scale-transition>
     </v-form>
 
-    <v-sheet class="px-3 pt-4 pb-3" elevation="1" rounded border>
+    <v-sheet
+      elevation="1"
+      rounded
+      border
+    >
+      <v-progress-linear
+        :color="is_bookinfo_filled ? 'blue-lighten-3' : 'amber-lighten-4'"
+        :model-value="100"
+        :indeterminate="loading_book_info || loading_book_saving"
+      ></v-progress-linear>
       <v-text-field
         label="ISBN"
         prepend-inner-icon="mdi-barcode"
-        :loading="loading_book_info"
         v-model="bookinfo.isbn"
         density="comfortable"
         hide-details
         variant="outlined"
-        class="mb-3"
+        class="ma-3"
       >
         <template v-slot:append-inner>
-          <v-icon
-            icon="mdi-sync"
+          <v-btn
+            icon
+            flat
+            density="compact"
+            :loading="loading_book_info"
             @click="fetch_book_info"
-          />
+          >
+            <v-icon
+              size="small"
+              icon="mdi-sync"
+            />
+          </v-btn>
         </template>
       </v-text-field>
 
@@ -162,7 +190,7 @@
         clearable
         hide-details
         variant="outlined"
-        class="mb-3"
+        class="ma-3"
       >
       </v-text-field>
 
@@ -174,7 +202,7 @@
         clearable
         hide-details
         variant="outlined"
-        class="mb-3"
+        class="ma-3"
       >
       </v-text-field>
 
@@ -186,11 +214,11 @@
         clearable
         variant="outlined"
         hide-details
-        class="mb-3"
+        class="ma-3"
       >
       </v-text-field>
 
-      <div class="d-flex justify-center">
+      <div class="ma-3 d-flex justify-center">
 
         <div
           class="text-caption text-error"
@@ -302,6 +330,8 @@ export default {
         this.snackbar_visible = true
         return
       }
+
+      this.show_isbn_not_found = false
       this.loading_book_saving = true
 
       const bookinfo = {
@@ -382,6 +412,7 @@ export default {
 
     },
     clear_bookinfo() {
+      this.show_isbn_not_found = false
       this.bookinfo.image = ''
       this.bookinfo.title = ''
       this.bookinfo.author = ''

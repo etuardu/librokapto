@@ -5,7 +5,7 @@
       variant="outlined"
       v-model="search_string"
       prepend-inner-icon="mdi-magnify"
-      placeholder="Search a book…"
+      :placeholder="i18n_t('library.search_book')"
       clearable
       hide-details
     >
@@ -22,7 +22,7 @@
           </template>
           <v-list>
             <v-list-item
-              title="Open in Google Sheets"
+              :title="i18n_t('library.open_in_gs')"
               prependIcon="mdi-google-spreadsheet"
               appendIcon="mdi-open-in-new"
               :href="gsheet_doc_url"
@@ -30,7 +30,7 @@
             >
             </v-list-item>
             <v-list-item
-              title="Refresh"
+              :title="i18n_t('library.refresh')"
               prependIcon="mdi-sync"
               @click="reloadLibrary"
             >
@@ -41,7 +41,7 @@
     </v-text-field>
 
     <div class="my-4 text-caption">
-      {{ filtered_library.length }} results
+      {{ filtered_library.length }} {{ i18n_t('library.results') }}
     </div>
 
     <books-table

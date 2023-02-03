@@ -46,13 +46,13 @@
       <v-row class="mb-2">
         <v-col cols="7">
           <v-combobox
-            label="Bookcase"
+            :label="i18n_t('book.bookcase')"
             variant="outlined"
             density="comfortable"
             v-model="bookcase"
             :items="bookcase_items"
             clearable
-            :rules="[ v => !!v || 'Please specify a bookcase.' ]"
+            :rules="[ v => !!v || i18n_t('insert.bookcase_mandatory') ]"
             hide-details
             hide-no-data
           >
@@ -80,13 +80,13 @@
         </v-col>
         <v-col cols="5">
           <v-text-field
-            label="Shelf"
+            :label="i18n_t('book.shelf')"
             variant="outlined"
             density="comfortable"
             v-model="shelf"
             type="number"
             bg-color="white"
-            :rules="[ v => !!`${v}` || 'Please specify a shelf number.', v => !!`${v}`.match(/^[0-9]+$/) || 'The shelf field must contain digits only (0-9).' ]"
+            :rules="[ v => !!`${v}` || i18n('insert.shelf_mandatory') , v => !!`${v}`.match(/^[0-9]+$/) || i18n('insert.shelf_numeric_only') ]"
             hide-details
           >
             <template v-slot:append>
@@ -124,7 +124,7 @@
           prepend-icon="mdi-content-save"
           type="submit"
         >
-          Save
+          {{ i18n_t('insert.save') }}
         </v-btn>
         <v-btn
           position="fixed"
@@ -142,7 +142,7 @@
           prepend-icon="mdi-barcode-scan"
           @click="quagga_visible=true"
         >
-          Scan ISBN
+          {{ i18n_t('insert.scan_isbn') }}
         </v-btn>
       </v-scale-transition>
     </v-form>
@@ -183,7 +183,7 @@
       </v-text-field>
 
       <v-text-field
-        label="Title"
+        :label="i18n_t('book.title')"
         prepend-inner-icon="mdi-format-title"
         v-model="bookinfo.title"
         density="comfortable"
@@ -195,7 +195,7 @@
       </v-text-field>
 
       <v-text-field
-        label="Author"
+        :label="i18n_t('book.author')"
         prepend-inner-icon="mdi-account-tie"
         v-model="bookinfo.author"
         density="comfortable"
@@ -207,7 +207,7 @@
       </v-text-field>
 
       <v-text-field
-        label="Publisher"
+        :label="i18n_t('book.publisher')"
         prepend-inner-icon="mdi-factory"
         v-model="bookinfo.publisher"
         density="comfortable"
@@ -224,7 +224,7 @@
           class="text-caption text-error"
           v-show="show_isbn_not_found"
         >
-          <v-icon>mdi-alert-circle-outline</v-icon> ISBN not found
+          <v-icon>mdi-alert-circle-outline</v-icon> {{ i18n_t('insert.isbn_not_found') }}
         </div>
 
         <v-spacer></v-spacer>
@@ -237,7 +237,7 @@
           @click="clear_bookinfo"
           right
         >
-          <v-icon class="me-2">mdi-close</v-icon> Clear all fields
+          <v-icon class="me-2">mdi-close</v-icon> {{ i18n_t('insert.clear_fields') }}
         </v-btn>
 
       </div>
@@ -257,7 +257,6 @@
 </template>
 <script>
 import { get, getMany, setMany } from 'idb-keyval'
-import TheWelcome from '../components/TheWelcome.vue'
 import QuaggaScanner from '../components/QuaggaScanner.vue'
 import String2color from '@/mixins/string2color.js'
 import { mapActions } from 'pinia'
@@ -390,15 +389,16 @@ export default {
         response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${this.bookinfo.isbn}`);
         data = await response.json();
       } catch(e) {
-        console.log("Server unreachable") // TODO: snackbar
-        this.show_isbn_not_found = true
+        // server unreachable
+        this.snackbar_text = this.i18n_t('insert.gbooks_unreachable')
+        this.snackbar_visible = true
         return
       } finally {
         this.loading_book_info = false
       }
 
       if (!data.items || data.items.length == 0) {
-        console.log("No book was found") // TODO: snackbar
+        console.log("No book was found")
         this.show_isbn_not_found = true
         return
       }

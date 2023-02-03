@@ -11,9 +11,9 @@
     <v-table>
       <thead>
         <tr>
-          <th>Book</th>
-          <th>Bookcase</th>
-          <th>Shelf</th>
+          <th>{{ i18n_t('book.book') }}</th>
+          <th>{{ i18n_t('book.bookcase') }}</th>
+          <th>{{ i18n_t('book.shelf') }}</th>
         </tr>
       </thead>
       <tbody>

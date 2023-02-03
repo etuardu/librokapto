@@ -2,7 +2,7 @@
   <v-container>
 
     <v-text-field
-      label="Google sheets document URL"
+      :label="i18n_t('settings.gsheets_doc_url')"
       v-model="doc_url"
       placeholder="https://docs.google.com/spreadsheets/d/…/edit#gid=0"
       persistent-placeholder
@@ -10,7 +10,7 @@
     ></v-text-field>
 
     <v-text-field
-      label="Google sheets Librokapto app URL"
+      :label="i18n_t('settings.gsheets_app_url')"
       v-model="app_url"
       placeholder="https://script.google.com/macros/s/…/exec"
       persistent-placeholder
@@ -18,18 +18,18 @@
     ></v-text-field>
 
     <v-select
-      label="Language"
+      :label="i18n_t('settings.language')"
       variant="outlined"
-      :items="Object.entries(i18n_langs)"
-      item-value="0"
-      item-title="1"
+      :items="lang_items"
+      item-value="code"
+      item-title="name"
       v-model="lang"
     ></v-select>
 
     <div class="d-flex flex-column flex-sm-row align-sm-center">
       <v-btn
         @click="save"
-      >Save settings</v-btn>
+      >{{ i18n_t('settings.save_settings') }}</v-btn>
       <v-btn
         text
         variant="text"
@@ -37,7 +37,7 @@
         class="ml-lg-6 mt-6 mt-sm-0 text-medium-emphasis"
         @click="copySettingsUrl"
       >
-        <v-icon class="me-1">mdi-link</v-icon> Share configuration
+        <v-icon class="me-1">mdi-link</v-icon> {{ i18n_t('settings.share_config') }}
       </v-btn>
     </div>
 
@@ -71,13 +71,22 @@ export default {
     if (search.has('a') && search.has('d')) {
       this.doc_url = search.get('d')
       this.app_url = search.get('a')
-      this.alert_text = 'Configuration loaded from shared link. Please save the settings if you want to keep it.'
+      this.alert_text = this.i18n_t('settings.config_loaded')
       this.alert_visible = true
       this.alert_type = 'info'
       return
     }
     // otherwise load the values from indexeddb
     [this.doc_url, this.app_url] = await getMany(['u_gsheet_doc_url', 'u_gsheet_app_url'])
+  },
+  computed: {
+    lang_items() {
+      return Object.entries(this.i18n_langs).map(l => ({
+        // l = [ 'en', 'English' ]
+        code: l[0],
+        name: this.i18n_t(`langs.${l[0]}`)
+      }))
+    }
   },
   methods: {
     async save() {
@@ -89,11 +98,11 @@ export default {
           ['u_gsheet_app_url', this.app_url]
         ])
         this.alert_type = 'success'
-        this.alert_text = 'Your settings has been updated!'
+        this.alert_text = this.i18n_t('settings.save_success')
         this.alert_visible = true
       } catch(e) {
         this.alert_type = 'error'
-        this.alert_text = 'Unable to save settings'
+        this.alert_text = this.i18n_t('settings.save_failure')
         this.alert_visible = true
       }
     },
@@ -105,11 +114,11 @@ export default {
       try {
         await navigator.clipboard.writeText(url);
         this.alert_type = 'success'
-        this.alert_text = 'Configuration link copied to clipboard!'
+        this.alert_text = this.i18n_t('settings.copy_success')
         this.alert_visible = true
       } catch(e) {
         this.alert_type = 'error'
-        this.alert_text = 'Cannot copy to clipboard'
+        this.alert_text = this.i18n_t('settings.copy_failure')
         this.alert_visible = true
       }
     }

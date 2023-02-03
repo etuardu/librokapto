@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1 class="text-h5 mb-4">About Librokapto</h1>
+    <h1 class="text-h5 mb-4">{{ i18n_t('about.title') }}</h1>
     <p class="text-body-2 my-1">
     Librokapto – A personal book catalogation app made
     by Edoardo Nannotti, 2023.

@@ -20,6 +20,10 @@
     <v-select
       label="Language"
       variant="outlined"
+      :items="Object.entries(i18n_langs)"
+      item-value="0"
+      item-title="1"
+      v-model="lang"
     ></v-select>
 
     <div class="d-flex flex-column flex-sm-row align-sm-center">
@@ -53,11 +57,14 @@ export default {
   data: () => ({
     doc_url: undefined,
     app_url: undefined,
+    lang: undefined,
     alert_type: 'success',
     alert_visible: false,
     alert_text: '',
   }),
   async created() {
+    this.lang = await this.i18n_get_lang()
+
     let search = new URL(window.location.href).searchParams
     // check if the user reached the page through a shared configuration
     // In this case the url would contain search parameters.
@@ -76,6 +83,7 @@ export default {
     async save() {
       this.alert_visible = false
       try {
+        await this.i18n_set_lang(this.lang)
         await setMany([
           ['u_gsheet_doc_url', this.doc_url],
           ['u_gsheet_app_url', this.app_url]

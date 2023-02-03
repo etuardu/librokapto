@@ -3,13 +3,20 @@ import { RouterLink, RouterView } from 'vue-router'
 export default {
   data: () => ({
     drawer: null,
-    nav_items: [
-      { title: 'Library', icon: 'mdi-bookshelf', to: '/' },
-      { title: 'Add books', icon: 'mdi-book-plus', to: '/insert' },
-      { title: 'Settings', icon: 'mdi-cog', to: '/settings' },
-      { title: 'About', icon: 'mdi-information', to: '/about' },
-    ]
   }),
+  async created() {
+    this.$vuetify.locale.current = await this.i18n_get_lang()
+  },
+  computed: {
+    nav_items() {
+      return [
+        { title: this.i18n_t('nav.library'), icon: 'mdi-bookshelf', to: '/' },
+        { title: this.i18n_t('nav.add_books'), icon: 'mdi-book-plus', to: '/insert' },
+        { title: this.i18n_t('nav.settings'), icon: 'mdi-cog', to: '/settings' },
+        { title: this.i18n_t('nav.about'), icon: 'mdi-information', to: '/about' },
+      ]
+    }
+  }
 }
 </script>
 <template>

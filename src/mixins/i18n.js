@@ -1,10 +1,10 @@
 import { get, set } from 'idb-keyval'
 export default {
   data: () => ({
-    i18n_langs: {
-      'en': 'English',
-      'it': 'Italian',
-    }
+    i18n_langs: [
+      'en',
+      'it'
+    ]
   }),
   methods: {
     i18n_t() {
@@ -17,14 +17,26 @@ export default {
       this.$vuetify.locale.current = code
     },
     async i18n_get_lang() {
+
       let code = await get('u_current_lang') 
-      if (Object.keys(this.i18n_langs).includes(code)) {
+
+      if (this.i18n_langs.includes(code)) {
+        // a legit code was stored in indexeddb
         return code
       }
 
-      // fallback
-      await this.i18n_set_lang('en')
-      return 'en'
+      code = navigator.language.split('-')[0]
+      // get the browser language, skipping
+      // the possible country code (es. 'it-IT')
+
+      if (!this.i18n_langs.includes(code)) {
+        // the browser language is unsupported
+        code = 'en'
+      }
+
+      await this.i18n_set_lang(code)
+      return code
+
     },
   }
 }

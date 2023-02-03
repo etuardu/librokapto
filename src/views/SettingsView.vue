@@ -81,10 +81,9 @@ export default {
   },
   computed: {
     lang_items() {
-      return Object.entries(this.i18n_langs).map(l => ({
-        // l = [ 'en', 'English' ]
-        code: l[0],
-        name: this.i18n_t(`langs.${l[0]}`)
+      return this.i18n_langs.map(code => ({
+        code,
+        name: this.i18n_t(`langs.${code}`)
       }))
     }
   },

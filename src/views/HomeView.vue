@@ -14,7 +14,7 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
-              variant="icon"
+              variant="flat"
               icon="mdi-dots-vertical"
               :loading="reloading"
             >

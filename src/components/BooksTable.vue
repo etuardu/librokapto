@@ -39,8 +39,14 @@
                 </div>
               </div>
             </td>
-            <td><v-chip :color="string2color(book.bookcase)">{{ book.bookcase }}</v-chip></td>
-            <td>{{ book.shelf }}</td>
+            <td>
+              <v-chip v-if="book.bookcase" :color="string2color(book.bookcase)">{{ book.bookcase }}</v-chip>
+              <span v-else class="text-disabled">—</span>
+            </td>
+            <td>
+              <span v-if="book.shelf">{{ book.shelf }}</span>
+              <span v-else class="text-disabled">—</span>
+            </td>
           </tr>
         </template>
       </tbody>

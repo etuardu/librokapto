@@ -304,7 +304,7 @@ export default {
         this.library.map(
           book => book.bookcase
         )
-      )]
+      )].filter(txt => txt) // skip empty
     }
   },
   methods: {

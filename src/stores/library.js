@@ -33,6 +33,17 @@ export const useLibraryStore = defineStore({
         )
       )
 
+      if (
+        (response.table.rows.length == 1)
+        && (response.table.cols[0].label === '')
+      ) {
+        // the sheet has only one line filled,
+        // but that is actually the heading
+        this.loading = false
+        this.library = []
+        return this.library
+      }
+
       const table = response.table.rows.map(
         row => row.c.map(
           cell => cell?.v
@@ -73,6 +84,7 @@ export const useLibraryStore = defineStore({
       this.loading = false
 
       return this.library
+
     },
     async getLibrary() {
       // will always return a library, wether after fecthing or immediately
@@ -85,11 +97,11 @@ export const useLibraryStore = defineStore({
 
       if (this.loading) {
         // is fetching: wait until fetched then return
-        function timeout(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
-        }
         while (this.loading) {
-          await timeout(500)
+          // FIXME: do it properly
+          await (
+            () => new Promise(resolve => setTimeout(resolve, 750))
+          )()
         }
         return this.library
       }

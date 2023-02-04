@@ -335,10 +335,10 @@ export default {
 
       const bookinfo = {
         title: this.bookinfo.title,
-        author: this.bookinfo.author,
-        publisher: this.bookinfo.publisher,
-        image: this.bookinfo.image,
-        isbn: this.bookinfo.isbn,
+        author: this.bookinfo.author || '',
+        publisher: this.bookinfo.publisher || '',
+        image: this.bookinfo.image || '',
+        isbn: this.bookinfo.isbn || '',
         bookcase: this.bookcase,
         shelf: this.shelf,
       }

@@ -5,6 +5,10 @@
     Librokapto – A personal book catalogation app made
     by Edoardo Nannotti, 2023.
     </p>
+    <p class="text-body-2 my-4">
+    See the <a href="https://github.com/etuardu/librokapto" target="_blank">Librokapto repository on GitHub</a>
+    for configurations instructions and source code.
+    </p>
     <p class="text-body-2 my-1">
     This software is released under the GPL-3 license.
     </p>

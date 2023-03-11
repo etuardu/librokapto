@@ -1,6 +1,5 @@
 <template>
   <v-container>
-
     <v-text-field
       :label="i18n_t('settings.gsheets_doc_url')"
       v-model="doc_url"

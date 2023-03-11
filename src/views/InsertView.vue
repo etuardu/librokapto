@@ -269,6 +269,9 @@ export default {
     'quagga-scanner': QuaggaScanner
   },
   async created() {
+    if (!await this.is_configured()) {
+      this.$router.replace('/settings')
+    }
     this.gsheet_app_url = await get('u_gsheet_app_url')
     this.bookcase = await get('u_last_bookcase') || ''
     this.shelf = await get('u_last_shelf') || 1

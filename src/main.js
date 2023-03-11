@@ -11,12 +11,14 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import i18n from '@/mixins/i18n.js'
+import is_configured from '@/mixins/is_configured.js'
 import it from '@/i18n/it.js'
 import en from '@/i18n/en.js'
 
 const app = createApp(App)
 
 app.mixin(i18n)
+app.mixin(is_configured)
 
 const vuetify = createVuetify({
   components,

@@ -69,6 +69,9 @@ export default {
     gsheet_doc_url: undefined,
   }),
   async created() {
+    if (!await this.is_configured()) {
+      this.$router.replace('/settings')
+    }
     this.gsheet_doc_url = await get('u_gsheet_doc_url')
     this.library = await this.getLibrary()
     this.initializing = false
